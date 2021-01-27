@@ -1,5 +1,20 @@
+'use strict';
+const {
+  Model
+} = require('sequelize');
+
 module.exports = (sequelize, Sequelize) => {
-    const User = sequelize.define("User", {
+    class User extends Model {
+        
+        static associate(models) {
+
+          models.User.hasMany(models.Message);
+
+        }
+      };
+
+
+    const userSchema = sequelize.define("User", {
         firstName: {
             type: Sequelize.STRING
         },
@@ -17,5 +32,5 @@ module.exports = (sequelize, Sequelize) => {
         }
     });
   
-    return User;
+    return userSchema;
   };
