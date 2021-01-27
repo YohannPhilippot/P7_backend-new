@@ -1,6 +1,6 @@
 'use strict';
 const {
-  Model
+  Model, DataTypes
 } = require('sequelize');
 
 module.exports = (sequelize, Sequelize) => {
@@ -31,8 +31,8 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.INTEGER
     },
     dislikes: {
-        type:Sequelize.INTEGER
-    }
+        type: Sequelize.INTEGER
+    }   
 });
   return postSchema;
 };

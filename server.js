@@ -2,6 +2,9 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 
+const userRoutes = require('./routes/user')
+const postRoutes = require('./routes/posts')
+
 const app = express();
 
 var corsOptions = {
@@ -21,10 +24,8 @@ db.sequelize.sync({ force: true }).then(() => {
     console.log("Drop and re-sync db.");
 });
 
-// simple route
-app.get("/", (req, res) => {
-  res.json({ message: "Welcome to bezkoder application." });
-});
+app.use('/api/users', userRoutes)
+app.use('/api/posts', postRoutes)
 
 // set port, listen for requests
 const PORT = process.env.PORT || 3000;
