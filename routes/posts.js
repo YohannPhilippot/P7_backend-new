@@ -4,14 +4,14 @@ const postsCtrl = require('../controllers/posts')
 const auth = require('../middleware/auth')
 const multer = require('../middleware/multer')
 
-router.post('/posts/newPost', auth, multer, postsCtrl.createPost)
-router.post('/posts/:postId/like', auth, postsCtrl.likePost)
+router.post('/newPost', auth, multer, postsCtrl.createPost)
 
-router.put('/posts/:postId', auth, multer, postsCtrl.modifyPost)
+router.put('/:id', auth, multer, postsCtrl.modifyPost)
 
-router.get('/posts', auth, postsCtrl.getAllPosts)
+router.get('/allPosts', auth, postsCtrl.getAllPosts)
+router.get('/:id', auth, postsCtrl.getOnePost)
 
-router.delete('/posts/:postId', auth, postsCtrl.deletePost)
+router.delete('/:id', auth, postsCtrl.deletePost)
 
 
 module.exports = router

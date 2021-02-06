@@ -1,20 +1,16 @@
 'use strict';
+
 const {
   Model
 } = require('sequelize');
 
+
+
+
+
 module.exports = (sequelize, Sequelize) => {
-    class User extends Model {
-        
-        static associate(models) {
-
-          models.User.hasMany(models.Message);
-
-        }
-      };
-
-
-    const userSchema = sequelize.define("User", {
+ 
+  var users = sequelize.define('users', {
         firstName: {
             type: Sequelize.STRING
         },
@@ -30,7 +26,12 @@ module.exports = (sequelize, Sequelize) => {
         isModerator: {
             type: Sequelize.BOOLEAN
         }
-    });
+    }, {});
+    
+    users.associate = function(models) {
+      models.users.hasMany(models.posts)
+    } 
+    
   
-    return userSchema;
+    return users;
   };

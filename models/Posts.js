@@ -1,23 +1,20 @@
 'use strict';
 const {
-  Model, DataTypes
+  Model
 } = require('sequelize');
 
-module.exports = (sequelize, Sequelize) => {
-  class Post extends Model {
-    
-    static associate(models) {
-      
-      models.Post.belongsTo(models.User, {
-        onDelete: 'CASCADE',
-        foreignKey: {
-          allowNull: false        
-        }
-      })     
-    }
-  };
 
-  const postSchema = sequelize.define("Post", {
+module.exports = (sequelize, Sequelize) => {
+  class posts extends Model {
+  
+    static associate(models) {
+      // define association here
+      models.posts.belongsTo(models.users)
+      }
+    }
+  
+  
+  posts.init({
     title: {
         type: Sequelize.STRING
     },
@@ -33,6 +30,11 @@ module.exports = (sequelize, Sequelize) => {
     dislikes: {
         type: Sequelize.INTEGER
     }   
+}, {
+  sequelize,
+  modelName: 'posts'
 });
-  return postSchema;
+
+  
+  return posts;
 };

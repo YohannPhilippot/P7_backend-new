@@ -1,36 +1,36 @@
-const db = require('../models')
-const User = db.users
-const Op = db.Sequelize.Op
+const models = require('../models')
+const Users = models.users
+const Op = models.Sequelize.Op
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
+
+
 
 exports.signup = (req, res) => {
     if (!req.body.email) {
         res.status(400).json({ error })
     }
-
-    bcrypt.hash(req.body.password, 10,)
-        
+     
+    bcrypt.hash(req.body.password, 10)
+     
     .then( hash => {
-        const user = models.User.create({
+        const user = models.users.create({
             firstName: req.body.firstName,
             lastName: req.body.lastName,
             email: req.body.email,
             password: hash,
             isModerator: false
         })
-
-        User.create(user)
-            .then( data => {
-                res.status(201).json('Utilisateur créé avec succès')
-            })
-            .catch( err => {
-                res.status(500).json({ error })
-            })
     })
+    .catch( err => {
+        res.status(400).json({ err })
+    })
+    
 }
 
-exports.login = (req, res) => {
-    User.findOne({ 
-            where: { email: email }
+exports.login = (req, res, next) => {
+    models.users.findOne({ 
+            where: { email: req.body.email }
          }) 
 
         .then((user) => {
@@ -41,16 +41,21 @@ exports.login = (req, res) => {
                 .then((valid) => {
                     if (!valid) {
                         return res.status(401).json({error: 'Mot de passe incorrect !'})
-                    }
+                    }                    
                     res.status(200).json({
-                        userId: user._id,
-                        token: jwt.sign(
-                            { userId: user._id },
-                            'nvlqNak25hq54xbg9HfgKywXJzuvppBTi7VrIGCW',
-                            { expiresIn: '24h' }
-
-                        )
-                    })
+ 
+                        
+                            userId: user.id,
+                            token: jwt.sign(
+                                {userId: user.id},
+                                'nvlqNak25hq54xbg9HfgKywXJzuvppBTi7VrIGCW',
+                                {expiresIn:'24h'}
+                                
+                            )
+                            
+                                          
+                    })   
+                                  
                 })
                 .catch(error => res.status(500).json({ error }))
         })
@@ -58,11 +63,10 @@ exports.login = (req, res) => {
 }
 
 exports.getOneUser = (req, res) => {
-    const id = req.params.id
-
-    User.findOne({
+    
+    models.users.findOne({
         where: {
-            id: id
+            id: req.params.id
         }
     })
     .then( user => {
@@ -84,11 +88,10 @@ exports.getAllUsers = (req, res) => {
 }
 
 exports.deleteUser = (req, res) => {
-    const id = req.params.id
 
-    User.destroy({
+    models.users.destroy({
         where: {
-            id: id
+            id: req.params.id
         }
     })
         .then( user => {
@@ -97,4 +100,30 @@ exports.deleteUser = (req, res) => {
         .catch( err => {
             res.status(500).json({ error })
         })
+}
+
+exports.modifyUser = (req, res) => {
+
+    models.users.findOne({
+        where: {
+            id: req.params.id
+        }
+    })
+    .then( user => {
+        const updateValues = {
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        email: req.body.email
+    }
+    user.update(updateValues)
+        .then( () => {
+            res.status(201).json({ message: 'Profil modifié avec succès !' })
+        })
+        .catch( err => {
+            res.status(400).json({ error })
+        })
+    })
+    .catch( err => {
+        res.status(404).json({ message: 'Profil a modifier non trouvé !' })
+    })
 }
