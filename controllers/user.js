@@ -19,7 +19,7 @@ exports.signup = (req, res) => {
             lastName: req.body.lastName,
             email: req.body.email,
             password: hash,
-            isModerator: false
+            isModerator: req.body.isModerator
         })
     })
     .catch( err => {

@@ -1,5 +1,6 @@
 const models = require('../models')
 const jwt = require('jsonwebtoken')
+const multer = require('multer')
 const Post = models.Post
 const Op = models.sequelize.Op
 const auth = require('../middleware/auth')
@@ -10,20 +11,24 @@ exports.createPost = (req, res) => {
     const token = req.headers.authorization.split(' ')[1]
     const decodedToken = jwt.verify(token, 'nvlqNak25hq54xbg9HfgKywXJzuvppBTi7VrIGCW')       
     const id = decodedToken.userId
-
+    console.log(req.body)
     models.users.findOne({
         where: {id: id}
     })
-    .then(
+    .then( user => {
+        
         models.posts.create({
             title: req.body.title,
             content: req.body.content,
             medias: req.body.medias,
             likes: 0, 
             dislikes: 0,
-            userId: id
-            
+            userId: id,
+            firstName: req.body.firstName,
+            lastName: req.body.lastName
         })
+    }
+        
     )
     
          .then( post => {
@@ -36,6 +41,23 @@ exports.createPost = (req, res) => {
         res.status(500).json({ err })
     })
         
+}
+
+exports.newImage = (req, res) => {
+    
+    const storage = multer.diskStorage({
+        destination: (req, file, callback) => {
+            callback(null, '../../images')
+        },
+        filename: (req, file, callback) => {
+            console.log(req.file)
+            const name = file.originalname.split(' ').join('_').split('.')[0]
+            const extension = file.mimetype
+            callback(null, name + Date.now() + '.' + extension)
+        }
+    })
+        multer({ storage: storage})
+       
 }
 
 exports.modifyPost = (req, res) => {
@@ -65,7 +87,19 @@ exports.modifyPost = (req, res) => {
 }
 
 exports.getAllPosts = (req, res) => {
-    models.posts.findAll()
+
+    const order = req.query.order
+    const limit = req.query.limit
+
+    models.posts.findAll({
+        order: [(order != null) ? order.split(':') : ['createdAt', 'DESC']],
+        limit: (!isNaN(limit) ? limit : 10),
+        include:[{
+            model: models.users,
+            attributes: ['firstName', 'lastName']
+        }]
+
+    })
         .then( posts => {
             res.status(200).json(posts)
         })
