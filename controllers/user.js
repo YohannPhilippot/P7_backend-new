@@ -10,21 +10,34 @@ exports.signup = (req, res) => {
     if (!req.body.email) {
         res.status(400).json({ error })
     }
+    models.users.findOne({
+        where: { email: req.body.email}
+    })
+        .then( user => {
+            if (user) {
+                res.status(401).json({ message: 'Utilisateur déjà existant avec cette adresse email'})
+            } else {
+                bcrypt.hash(req.body.password, 10)
      
-    bcrypt.hash(req.body.password, 10)
-     
-    .then( hash => {
-        const user = models.users.create({
-            firstName: req.body.firstName,
-            lastName: req.body.lastName,
-            email: req.body.email,
-            password: hash,
-            isModerator: req.body.isModerator
+                .then( hash => {
+                    const user = models.users.create({
+                        firstName: req.body.firstName,
+                        lastName: req.body.lastName,
+                        email: req.body.email,
+                        password: hash,
+                        isModerator: req.body.isModerator
+                    })
+                })
+                .catch( err => {
+                    res.status(400).json({ err })
+                })
+            }
+        }) 
+            
+        .catch( err => {
+            res.status(500).json({ err })
         })
-    })
-    .catch( err => {
-        res.status(400).json({ err })
-    })
+    
     
 }
 
@@ -40,7 +53,7 @@ exports.login = (req, res, next) => {
             bcrypt.compare(req.body.password, user.password) 
                 .then((valid) => {
                     if (!valid) {
-                        return res.status(401).json({error: 'Mot de passe incorrect !'})
+                        return res.status(404).json({error: 'Mot de passe incorrect !'})
                     }                    
                     res.status(200).json({
  
